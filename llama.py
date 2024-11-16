@@ -15,7 +15,7 @@ FORWARD_API = itertools.cycle(
         # "https://sakura.1percentsync.games/",
         "https://sakura-share.one/",
         # "https://neovax.neocloud.tw/",
-        "https://tls.0v0.io/proxy?url=https://sakura-share.one/",
+        # "https://tls.0v0.io/proxy?url=https://sakura-share.one/",
         # "https://sakura.pidanshourouzhou.top/",
     ]
 )
