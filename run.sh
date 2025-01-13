@@ -1,3 +1,5 @@
 #!/bin/bash
-source /opt/rh/rh-python38/enable
-python3.8 -m uvicorn llama:app --host localhost --port 25010 --reload
+python3 -m venv create
+source ./.venv/bin/activate
+python3 -m pip install -r requirements.txt
+python3 -m uvicorn llama:app --host localhost --port 25010 --reload
