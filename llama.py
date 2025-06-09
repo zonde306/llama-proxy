@@ -197,7 +197,7 @@ async def health():
 
 async def keep_alive(coro : typing.Awaitable, timeout : float = 10):
     task = asyncio.create_task(coro)
-    with not task.done():
+    while not task.done():
         done, _ = await asyncio.wait({ task }, timeout=timeout)
         if not done:
             yield "\n"
