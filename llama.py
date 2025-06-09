@@ -6,6 +6,7 @@ import urllib.parse
 import collections
 import contextlib
 import asyncio
+import typing
 import fastapi
 import fastapi.middleware
 import fastapi.middleware.cors
@@ -194,6 +195,19 @@ async def health():
     return {"status": "ok"}
 
 
+async def keep_alive(coro : typing.Awaitable, timeout : float = 10):
+    task = asyncio.create_task(coro)
+    with not task.done():
+        done, _ = await asyncio.wait({ task }, timeout=timeout)
+        if not done:
+            yield "\n"
+    
+    result = task.result()
+    if not isinstance(result, str):
+        yield json.dumps(result, separators=(",", ":"))
+    else:
+        yield result
+
 @app.get("/")
 async def index():
     status: dict = await health()
@@ -207,7 +221,7 @@ async def chat_completion_post(request: fastapi.Request):
     data: dict = json.loads(await request.body())
     if data.get("stream", False):
         return StreamingResponse(fetch_completion_stream(data, "/v1/chat/completions"))
-    return await fetch_completion(data, "/v1/chat/completions")
+    return StreamingResponse(keep_alive(fetch_completion(data, "/v1/chat/completions")))
 
 
 @app.post("/completion")
@@ -215,7 +229,7 @@ async def completion_post(request: fastapi.Request):
     data: dict = json.loads(await request.body())
     if data.get("stream", False):
         return StreamingResponse(fetch_completion_stream(data, "/completion"))
-    return await fetch_completion(data, "/completion")
+    return StreamingResponse(keep_alive(fetch_completion(data, "/completion")))
 
 
 @app.get("/v1/models")
